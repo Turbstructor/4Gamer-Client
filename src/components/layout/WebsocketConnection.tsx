@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IconBell, IconBellFilled } from '@tabler/icons-react';
 import {
   Box,
@@ -22,12 +23,18 @@ const WebsocketConnection = () => {
   const subjectId = useRef<string>('');
   const [targetId, setTargetId] = useState<string>('');
   const [roomId, setRoomId] = useState<string>('');
-  const [notificationList, setNotificationList] = useState<Notification[]>([]);
-  const [isClicked, setIsClicked] = useState(false);
+  const [notificationList, setNotificationList] = useState<Notification[]>(
+    JSON.parse(localStorage.getItem('notificationList') || '[]')
+  );
   const [openChatWindow, setOpenChatWindow] = useState(false);
+  const navigate = useNavigate();
 
   const handleChatWindow = (value: boolean) => {
     setOpenChatWindow(value);
+  };
+
+  const notificationListLocalSave = () => {
+    localStorage.setItem('notificationList', JSON.stringify(notificationList));
   };
 
   const webSocketConnection = (userId: string) => {
@@ -96,31 +103,40 @@ const WebsocketConnection = () => {
     };
   }, [tokenRef]);
 
-  useEffect(() => {}, [notificationList]);
-
   useEffect(() => {
-    setNotificationList([]);
-    setIsClicked(false);
-  }, [openChatWindow]);
+    notificationListLocalSave();
+  }, [notificationList]);
 
   return (
     <Popover width={300} trapFocus position="bottom" withArrow shadow="md">
       <Box pos="relative">
         {(tokenRef.current && notificationList.length !== 0 && (
-          <Indicator inline processing color="red" size={10} onClick={() => setIsClicked(true)}>
+          <Indicator inline processing color="red" size={10}>
             <Popover.Target>
               <IconBellFilled />
             </Popover.Target>
           </Indicator>
-        )) || <IconBell />}
-        {isClicked && (
-          <Popover.Dropdown>
-            <ScrollArea style={{ height: 300, overflowY: 'auto' }}>
-              {notificationList.map((value, index) => (
+        )) || (
+          <Popover.Target>
+            <IconBell />
+          </Popover.Target>
+        )}
+        <Popover.Dropdown>
+          <ScrollArea h={300}>
+            {notificationList.length === 0 ? (
+              <Text mt={50} ml={50}>
+                새로운 알림이 없습니다.
+              </Text>
+            ) : (
+              notificationList.map((value, index) => (
                 <Card
                   key={index}
                   onClick={() => {
-                    value.roomId ? setOpenChatWindow(true) : (window.location.href = '/message');
+                    const newNotificationList = notificationList.filter((_, i) => i !== index);
+                    setNotificationList(newNotificationList);
+
+                    // if (newNotificationList.length === 0) navigate(0);
+                    value.roomId ? setOpenChatWindow(true) : navigate('/message');
                   }}
                 >
                   {index !== 0 && <Divider my="md" mt={0} mb={30} />}
@@ -128,10 +144,10 @@ const WebsocketConnection = () => {
                   <br />
                   <Text>{value.message}</Text>
                 </Card>
-              ))}
-            </ScrollArea>
-          </Popover.Dropdown>
-        )}
+              ))
+            )}
+          </ScrollArea>
+        </Popover.Dropdown>
       </Box>
       <Box pos="absolute" top={100} right={100}>
         {openChatWindow && (
