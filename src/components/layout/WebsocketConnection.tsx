@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { IconBell, IconBellFilled } from '@tabler/icons-react';
-import { Box, Card, Divider, Indicator, Notification, Paper, Text } from '@mantine/core';
+import { Box, Card, Divider, Indicator, Notification, Popover, Text } from '@mantine/core';
 import { Client, StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { getMemberInfo } from '../../api/member';
@@ -95,29 +95,31 @@ const WebsocketConnection = () => {
   }, [openChatWindow]);
 
   return (
-    <div>
+    <Popover width={300} trapFocus position="bottom" withArrow shadow="md">
       <Box pos="relative">
         {(tokenRef.current && notificationList.length !== 0 && (
           <Indicator inline processing color="red" size={10} onClick={() => setIsClicked(true)}>
-            <IconBellFilled />
+            <Popover.Target>
+              <IconBellFilled />
+            </Popover.Target>
           </Indicator>
         )) || <IconBell />}
         {isClicked && (
-          <Paper pos="absolute" right={0} w={380} bg="white" bd="1px solid dark.9">
-            {notificationList.map((value, index) => (
-              <Card
-                key={index}
-                onClick={() => {
-                  value.roomId ? setOpenChatWindow(true) : (window.location.href = '/message');
-                }}
-              >
-                {index !== 0 && <Divider my="md" mt={0} mb={30} />}
-                {value.roomId === null && <Text>{value.subjectId}님이 쪽지를 보냈습니다.</Text>}
-                <br />
-                <Text>{value.message}</Text>
-              </Card>
-            ))}
-          </Paper>
+            <Popover.Dropdown>
+              {notificationList.map((value, index) => (
+                <Card
+                  key={index}
+                  onClick={() => {
+                    value.roomId ? setOpenChatWindow(true) : (window.location.href = '/message');
+                  }}
+                >
+                  {index !== 0 && <Divider my="md" mt={0} mb={30} />}
+                  {value.roomId === null && <Text>{value.subjectId}님이 쪽지를 보냈습니다.</Text>}
+                  <br />
+                  <Text>{value.message}</Text>
+                </Card>
+              ))}
+            </Popover.Dropdown>
         )}
       </Box>
       <Box pos="absolute" top={100} right={100}>
@@ -130,7 +132,7 @@ const WebsocketConnection = () => {
           />
         )}
       </Box>
-    </div>
+    </Popover>
   );
 };
 
