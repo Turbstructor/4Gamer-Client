@@ -97,9 +97,7 @@ const Chat = ({ subjectId, targetId, roomId, handler }: Chat) => {
     handler(false);
   };
 
-  const sendMessage = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, message: string) => {
-    e.preventDefault();
-
+  const sendMessage = (message: string) => {
     if (message) {
       addChatHistory(subjectId, targetId, message, dateFormat(new Date().toISOString()));
 
@@ -115,6 +113,13 @@ const Chat = ({ subjectId, targetId, roomId, handler }: Chat) => {
         }),
       });
     }
+  };
+
+  const handleSubmit = async (event: any, message: string) => {
+    event.preventDefault();
+
+    sendMessage(message);
+    inputRef.current!.value = '';
   };
 
   useEffect(() => {
@@ -149,18 +154,12 @@ const Chat = ({ subjectId, targetId, roomId, handler }: Chat) => {
         )}
         {isTargetExited && `${targetId}님께서 채팅을 종료했습니다.`}
       </ScrollArea>
-      <Group justify="space-between">
-        <TextInput ref={inputRef} w={380} />
-        <Button
-          type="button"
-          onClick={(e) => {
-            sendMessage(e, inputRef.current!.value);
-            inputRef.current!.value = '';
-          }}
-        >
-          전송
-        </Button>
-      </Group>
+      <form onSubmit={(e) => handleSubmit(e, inputRef.current?.value)}>
+        <Group justify="space-between">
+          <TextInput ref={inputRef} w={380} />
+          <Button type="submit">전송</Button>
+        </Group>
+      </form>
     </Card>
   );
 };
