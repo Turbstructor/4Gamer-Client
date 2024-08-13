@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { IconBell, IconBellFilled } from '@tabler/icons-react';
-import { Box, Card, Divider, Indicator, Notification, Popover, Text } from '@mantine/core';
+import {
+  Box,
+  Card,
+  Divider,
+  Indicator,
+  Notification,
+  Popover,
+  ScrollArea,
+  Text,
+} from '@mantine/core';
 import { Client, StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { getMemberInfo } from '../../api/member';
@@ -105,7 +114,8 @@ const WebsocketConnection = () => {
           </Indicator>
         )) || <IconBell />}
         {isClicked && (
-            <Popover.Dropdown>
+          <Popover.Dropdown>
+            <ScrollArea style={{ height: 300, overflowY: 'auto' }}>
               {notificationList.map((value, index) => (
                 <Card
                   key={index}
@@ -119,7 +129,8 @@ const WebsocketConnection = () => {
                   <Text>{value.message}</Text>
                 </Card>
               ))}
-            </Popover.Dropdown>
+            </ScrollArea>
+          </Popover.Dropdown>
         )}
       </Box>
       <Box pos="absolute" top={100} right={100}>
