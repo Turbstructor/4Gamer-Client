@@ -46,7 +46,7 @@ const WebsocketConnection = () => {
       // debug: (msg) => console.log(msg),
       reconnectDelay: 50000,
       onConnect: () => {
-        console.log('Connected');
+        // console.log('Connected');
 
         subscriptionRef.current = stompClient.subscribe(
           `/sub/notification/${userId}`,
@@ -107,6 +107,22 @@ const WebsocketConnection = () => {
     notificationListLocalSave();
   }, [notificationList]);
 
+  useEffect(() => {
+    if (openChatWindow) {
+      clientRef.current?.publish({
+        destination: '/pub/chat',
+        body: JSON.stringify({
+          type: 'ENTER',
+          roomId,
+          subjectId: subjectId.current,
+          targetId: subjectId.current,
+          message: `${subjectId}님께서 입장하셨습니다.`,
+          createdAt: new Date(),
+        }),
+      });
+    }
+  }, [openChatWindow]);
+
   return (
     <Popover width={300} trapFocus position="bottom" withArrow shadow="md">
       <Box pos="relative">
@@ -134,8 +150,6 @@ const WebsocketConnection = () => {
                   onClick={() => {
                     const newNotificationList = notificationList.filter((_, i) => i !== index);
                     setNotificationList(newNotificationList);
-
-                    // if (newNotificationList.length === 0) navigate(0);
                     value.roomId ? setOpenChatWindow(true) : navigate('/message');
                   }}
                 >
