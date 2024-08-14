@@ -6,7 +6,6 @@ import { getGameReviewList } from '../../api/gameReviewApi';
 import { getGameReviewReactionList } from '../../api/VoteApi';
 import GameReviewItem from '../../components/game-review/GameReviewItem';
 import GameReviewInput from '../../components/game-review/GameReviewInput';
-import './GameReviewList.page.css';
 import { PageFrame } from '../../components/Common/PageFrame/PageFrame';
 import { getMemberInfo } from '../../api/member';
 
